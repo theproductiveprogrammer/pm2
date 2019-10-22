@@ -1,0 +1,23 @@
+{
+  "name": "pm2-electron-tester",
+  "version": "1.0.0",
+  "description": "Tester for PM2 replacement that works with Electron",
+  "main": "tester.js",
+  "scripts": {
+    "start": "electron tester.js",
+    "build": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^4.2.9",
+    "electron-builder": "^21.2.0"
+  },
+  "author": "charles.lobo@gmail.com",
+  "license": "ISC",
+  "build": {
+      "asar": false
+  },
+  "dependencies": {
+    "pm2": "^3.5.1"
+  }
+}
