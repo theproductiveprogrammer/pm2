@@ -21,8 +21,10 @@ const proc = require('child_process')
  */
 module.exports = function(cmd, args, cwd, log, cb, env, pfx_) {
     let child
-    if(env) child = proc.fork(cmd, args, { cwd: cwd, env: env, silent: true })
-    else child = proc.fork(cmd, args, { cwd: cwd, silent: true })
+    if(env) child = proc.fork(cmd, args, { cwd: cwd, env: env, silent: true, detached: false })
+    else child = proc.fork(cmd, args, { cwd: cwd, silent: true, detached: false })
+
+  process.on('exit', () => child.kill())
 
     let op = ""
     let er = ""
