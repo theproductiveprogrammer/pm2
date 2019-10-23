@@ -15,6 +15,7 @@
   "author": "charles.lobo@gmail.com",
   "license": "ISC",
   "build": {
-    "asar": true
+    "asar": true,
+    "asarUnpack": "process1/process2/"
   }
 }

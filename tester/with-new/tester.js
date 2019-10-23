@@ -3,6 +3,7 @@
 const {app, BrowserWindow} = require('electron')
 const path = require('path')
 const pm2 = require('./exec.js')
+const pm22 = require('./exec2.js')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -21,6 +22,15 @@ function createWindow () {
   pm2('index.js', [], './process1', 'process1.log', (err) => {
     if(err) console.error(err)
     else console.log('Started process1...')
+  })
+
+  let p2 = "./process1/process2"
+  if(process.mainModule.filename.indexOf('app.asar') !== -1) {
+    p2 = path.join(__dirname, '..', 'app.asar.unpacked', 'process1', 'process2')
+  }
+  pm22('/usr/local/bin/python', ['serve.py'], p2, 'process2.log', (err) => {
+    if(err) console.error(err)
+    else console.log('Started process2...')
   })
 
   // Open the DevTools.
