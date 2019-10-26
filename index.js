@@ -120,11 +120,33 @@ function stop(pi) {
 function getScriptHandler(script) {
     let handlers = {
         ".js" : launchJSProcess,
+        ".py" : launchPythonProcess,
     }
     let ext = path.extname(script)
     if(ext) return handlers[ext]
 }
 
+/*      outcome/
+ * We use the standard `child_process.spawn` function to launch a python
+ * process with the given script as the first argument. Then we capture
+ * the output and handle process exits.
+ */
+function launchPythonProcess(pi) {
+    let opts = {
+        windowsHide: false,
+        detached: false,
+    }
+
+    if(pi.cwd) opts.cwd = pi.cwd
+    if(pi.env) opts.env = pi.env
+    if(!pi.args) pi.args = [pi._script]
+    else pi.args = [pi._script].concat(pi.args)
+
+    pi.child = proc.spawn('python', pi.args, opts)
+
+    pi.flush = captureOutput(pi)
+    handleExit(pi)
+}
 
 /*      understand/
  * To launch the requested process as a new NodeJS process, we use a
