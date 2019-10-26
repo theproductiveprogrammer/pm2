@@ -34,11 +34,15 @@ pm.start({
 
 	script:'index.js',
 
+	args: [arguments],
+
 	cwd:'./services/first',
 
-	log: 'logs/service1.log',`
+	log: 'logs/service1.log',
 
-	restartAt: [0,100,500..],`
+	env: ENVIRONMENT_OBJECT,
+
+	restartAt: [0,100,500..],
 
 })
 
