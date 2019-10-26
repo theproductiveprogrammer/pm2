@@ -24,3 +24,5 @@ pm2.start({
     script: './tester/with-new/process1/process2/serve.py',
     log: 'process2.log',
 })
+setTimeout(() => pm2.stop('process2'), 1000)
+setTimeout(() => pm2.stop('process1'), 3000)

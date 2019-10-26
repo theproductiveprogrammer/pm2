@@ -112,7 +112,24 @@ function onstopping(hook) {
 function restart(pi) {
 }
 
-function stop(pi) {
+/*      outcome/
+ * Send a message to the child to stop and wait a bit to see if it
+ * complies. If it does fine, otherwise try to kill it.
+ */
+function stop(pi, cb) {
+    if(!pi.child) return
+    try {
+        pi.child.send && pi.child.send({ stopping: true })
+        setTimeout(() => {
+            if(pi.child) {
+                pi.child.kill()
+                pi.child = null
+            }
+            cb && cb()
+        }, 200)
+    } catch(e) {
+        cb && cb(e)
+    }
 }
 
 /*      problem/
@@ -248,20 +265,30 @@ function captureOutput(pi) {
  *
  *      outcome/
  * If there is an error, exit, or close, we flush whatever data we have
- * so far and then callback with the error or completion.
+ * so far and then callback with the error or completion and clear the
+ * child process.
  */
 function handleExit(pi) {
     pi.child.on('error', (err) => {
+        pi.child = null
         pi.flush && pi.flush()
         pi.cb && pi.cb(err)
     })
     pi.child.on('exit', on_done_1)
     pi.child.on('close', on_done_1)
 
+    let prevcode, prevsignal
+
     function on_done_1(code, signal) {
+        pi.child = null
         pi.flush && pi.flush()
-        if(code || signal) {
+        if(code == prevcode && signal == prevsignal) return
+        prevcode = code
+        prevsignal = signal
+        if(code && code) {
             pi.cb && pi.cb(`Exited with error`)
+        } else if(signal) {
+            pi.cb && pi.cb(`Killed`)
         } else {
             pi.cb && pi.cb()
         }
