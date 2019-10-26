@@ -153,5 +153,6 @@ Hence we should use the [asarUnpack](https://www.electron.build/configuration/co
 
 ## TODO
 [ ] Update README (split into Design vs Use)
+[ ] Update README (with callbacks)
 [ ] Publish to everlifeai
 [ ] Add Support for more process types (besides just python and node)
