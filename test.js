@@ -79,7 +79,16 @@ runTest("Stop the NodeJS process completely",
         })
     })
 
-runTest("Try killing this [100,1000,30000]/1min process",
+runTest("Start another Python process",
+    1000,
+    () => {
+        pm2.start({
+            name: 'python-process',
+            script: './tester/with-new/process1/process2/serve.py',
+        })
+    })
+
+runTest("Try killing this [100,1000,30000]/1min nodeJS process",
     2000,
     () => {
         pm2.start({
@@ -94,10 +103,10 @@ runTest("Try killing this [100,1000,30000]/1min process",
         })
     })
 
-runTest("Stopping NodeJS Process",
-    3*60*1000,
+runTest("Stop all processes",
+    3 * 60 * 1000,
     () => {
-        pm2.stop('nodejs-process', (err) => {
+        pm2.stopAll((err) => {
             if(err) console.error(err)
         })
     })

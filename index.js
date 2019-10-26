@@ -7,7 +7,7 @@ module.exports = {
     start : start,
     restart: restartByName,
     stop: stopByName,
-    stopall,
+    stopAll,
     onstopping,
 }
 
@@ -105,12 +105,14 @@ function restartByName(name) {
 
 function stopByName(name, cb) {
     REG.forEach((pi) => {
-        if(pi.name === name) stop(pi, cb)
+        if(pi.child && pi.name === name) stop(pi, cb)
     })
 }
 
-function stopall() {
-    REG.forEach(stop)
+function stopAll(cb) {
+    REG.forEach((pi) => {
+        if(pi.child) stop(pi, cb)
+    })
 }
 
 /*      outcome/
