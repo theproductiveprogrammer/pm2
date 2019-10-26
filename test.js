@@ -46,14 +46,19 @@ runTest("Start a Python process (output in log file)",
             script: './tester/with-new/process1/process2/serve.py',
             log: 'process2.log',
         }, (err, pid) => {
-            if(err) console.error(err)
-            if(pid) console.log(`PID: ${pid}`)
+            if(err && pid) console.error(err, pid)
+            else if(err) console.error(err)
+            else if(pid) console.log(`PID: ${pid}`)
         })
     })
 
 runTest("Stop the Python process",
     2000,
-    () => pm2.stop('python-process'))
+    () => {
+        pm2.stop('python-process', (err) => {
+            if(err) console.error(err)
+        })
+    })
 
 runTest("Restart the NodeJS process",
     1000, () => pm2.restart('nodejs-process'))

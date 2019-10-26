@@ -28,8 +28,11 @@ let ONSTOPPING_CALLED
  * start the given process depending on what type it is
  */
 function start(pi, cb) {
-    if(!cb) cb = (err) => {
-        if(err) {
+    if(!cb) cb = (err, pid) => {
+        if(err && pid) {
+            if(pi && pi.name) console.error(pi.name, err, pid)
+            else console.error(err, pid)
+        } else if(err) {
             if(pi && pi.name) console.error(pi.name, err)
             else console.error(err)
         }
@@ -335,9 +338,9 @@ function handleExit(pi) {
         prevcode = code
         prevsignal = signal
         if(code && code) {
-            pi.cb && pi.cb(`Exited with error`)
+            pi.cb && pi.cb(`Exited with error`, child.pid)
         } else if(signal) {
-            pi.cb && pi.cb(`Killed`)
+            pi.cb && pi.cb(`Killed`, child.pid)
         } else {
             pi.cb && pi.cb()
         }
