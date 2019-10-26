@@ -96,9 +96,9 @@ function restartByName(name) {
     })
 }
 
-function stopByName(name) {
+function stopByName(name, cb) {
     REG.forEach((pi) => {
-        if(pi.name === name) stop(pi)
+        if(pi.name === name) stop(pi, cb)
     })
 }
 
@@ -134,19 +134,27 @@ function onstopping(hook) {
  * appropriate handler to restart it
  */
 function restart(pi) {
-    stop(pi, (err) => {
-        if(err) {
-            pi.cb && pi.cb(err)
-        } else {
-            let handler = getScriptHandler(pi._script)
-            if(handler) {
-                handler(pi)
-                pi.cb && pi.cb()
+    if(pi.child) {
+        stop(pi, (err) => {
+            if(err) {
+                pi.cb && pi.cb(err)
             } else {
-                pi.cb && pi.cb(`Don't know how to restart ${script}`)
+                startagain_1(pi)
             }
+        })
+    } else {
+        startagain_1(pi)
+    }
+
+    function startagain_1(pi) {
+        let handler = getScriptHandler(pi._script)
+        if(handler) {
+            handler(pi)
+            pi.cb && pi.cb()
+        } else {
+            pi.cb && pi.cb(`Don't know how to restart ${script}`)
         }
-    })
+    }
 }
 
 /*      outcome/
