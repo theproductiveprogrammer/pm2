@@ -1,6 +1,6 @@
 {
   "name": "pm2",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A Simple PM2 Replacement that works with Electron",
   "main": "index.js",
   "scripts": {
