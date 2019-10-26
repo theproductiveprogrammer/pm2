@@ -98,15 +98,17 @@ Now if the user restarts a process and it crashes again and again and again, he 
 
 When a process crashes we will restart it. However the number of times we will restart should depend on how stable we see it behaving:
 
-- First crash? Restart Immediately
-- Crashed again? Wait 100ms before restarting
+- First crash? Wait 100ms before restarting
 - Crashed again? Wait 500ms before restarting
 - Crashed again? Wait 1 second, then 10 seconds, then 30 seconds, then 1 minute, then 5 minutes before restarting
 - Still crashing? Re-try every 15 minutes
 
 If it has been running successfully for 30 minutes before crashing, treat it as the first crash and restart the cycle again.
 
-(this can be configured using the `restartAt:[]` parameter)
+This can be configured by the user using the `restartAt:[]` parameter
+and the `restartOk` parameter.
+Additionally, if this is set to `[]` or `[0]`, then no restart will be
+attempted.
 
 ## Logging
 
@@ -151,5 +153,5 @@ Hence we should use the [asarUnpack](https://www.electron.build/configuration/co
 
 ## TODO
 [ ] Update README (split into Design vs Use)
-[ ] Add Restart-after-Crash Ability
+[ ] Publish to everlifeai
 [ ] Add Support for more process types (besides just python and node)

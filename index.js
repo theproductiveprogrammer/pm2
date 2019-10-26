@@ -47,8 +47,12 @@ function start(pi, cb) {
         cwd: pi.cwd,
         log: pi.log,
         restartAt: pi.restartAt,
+        restartOk: pi.restartOk,
         cb: cb,
     }
+
+    if(!pi.restartAt) pi.restartAt = [100,500,1000,30*1000,60*1000,5*60*1000,15*60*1000]
+    if(!pi.restartOk) pi.restartOk = 30 * 60 * 1000
 
     get_script_1(pi, (script) => {
         pi._script = script
@@ -133,8 +137,8 @@ function onstopping(hook) {
 
 
 /*      outcome/
- * Restart the requested process by stopping it and then getting the
- * appropriate handler to restart it
+ * Restart the requested process by stopping it and then starting it
+ * again.
  */
 function restart(pi) {
     if(pi.child) {
@@ -142,21 +146,29 @@ function restart(pi) {
             if(err) {
                 pi.cb && pi.cb(err)
             } else {
-                startagain_1(pi)
+                startAgain(pi)
             }
         })
     } else {
-        startagain_1(pi)
+        startAgain(pi)
     }
+}
 
-    function startagain_1(pi) {
-        let handler = getScriptHandler(pi._script)
-        if(handler) {
-            handler(pi)
-            pi.cb && pi.cb()
-        } else {
-            pi.cb && pi.cb(`Don't know how to restart ${script}`)
-        }
+/*      outcome/
+ * This function finds the appropriate handler for the process and
+ * starts the process again marking the time it has been restarted.
+ * It assumes that the process has been correctly started/setup before
+ * and stopped so it does no error checking
+ */
+function startAgain(pi) {
+    let handler = getScriptHandler(pi._script)
+    if(handler) {
+        handler(pi)
+        pi.stopRequested = false
+        pi.lastStart = Date.now()
+        pi.cb && pi.cb(null, pi.child.pid)
+    } else {
+        pi.cb && pi.cb(`Don't know how to restart ${script}`)
     }
 }
 
@@ -165,6 +177,8 @@ function restart(pi) {
  * complies. If it does fine, otherwise try to kill it.
  */
 function stop(pi, cb) {
+    pi.stopRequested = true
+    if(pi.restartInProgress) clearTimeout(pi.restartInProgress)
     if(!pi.child) {
         cb && cb(`No process to stop`)
         return
@@ -316,7 +330,7 @@ function captureOutput(pi) {
  *      outcome/
  * If there is an error, exit, or close, we flush whatever data we have
  * so far and then callback with the error or completion and clear the
- * child process.
+ * child process. Allow the process to restart if needed.
  */
 function handleExit(pi) {
     let child = pi.child
@@ -325,6 +339,7 @@ function handleExit(pi) {
         if(child == pi.child) pi.child = null
         pi.flush && pi.flush()
         pi.cb && pi.cb(err)
+        restartIfNeeded(pi)
     })
     child.on('exit', on_done_1)
     child.on('close', on_done_1)
@@ -344,6 +359,47 @@ function handleExit(pi) {
         } else {
             pi.cb && pi.cb()
         }
+        restartIfNeeded(pi)
     }
+}
 
+/*      outcome/
+ * If the process is not running, check which restart interval is needed
+ * then launch a restart after that time. Note that if the `restartAt`
+ * parameter is the special parameters `[]` or `[0]` or if the process
+ * is already started somehow we don't start it again.
+ */
+function restartIfNeeded(pi) {
+    if(!pi.restartAt || pi.restartAt.length == 0) return
+    if(pi.restartAt.length == 1 && pi.restartAt[0] == 0) return
+    if(pi.child) return
+    if(pi.stopRequested) return
+
+    if(pi.restartInProgress) return
+
+    let intv = get_restart_interval_1()
+
+    pi.restartInProgress = setTimeout(() => {
+        pi.restartInProgress = false
+        if(!pi.child && !pi.stopRequested) startAgain(pi)
+    }, intv)
+
+
+    /*      outcome/
+     * The restartAt[] parameter gives a list of times (usually
+     * increasing) at which to attempt the restart of this process.
+     * We keep track of the current index and go all the way to the end.
+     * If the process has been running successfully for `restartOk` we go
+     * back to the begginning cycle again.
+     */
+    function get_restart_interval_1() {
+        let ndx = pi.restartAtNdx ? pi.restartAtNdx : 0
+        if(pi.lastStart && (Date.now() - pi.lastStart > pi.restartOk)) ndx = 0
+
+        if(!ndx) pi.restartAtNdx = 1
+        else pi.restartAtNdx += 1
+        if(pi.restartAtNdx >= pi.restartAt.length) pi.restartAtNdx = pi.restartAt.length-1
+
+        return pi.restartAt[ndx]
+    }
 }

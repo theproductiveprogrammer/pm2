@@ -78,3 +78,26 @@ runTest("Stop the NodeJS process completely",
             if(err) console.error(err)
         })
     })
+
+runTest("Try killing this [100,1000,30000]/1min process",
+    2000,
+    () => {
+        pm2.start({
+            name: 'nodejs-process',
+            cwd: './tester/with-new/process1',
+            restartAt: [100, 1000, 30000],
+            restartOk: 60000,
+        }, (err, pid) => {
+            if(err && pid) console.error(err, pid)
+            else if(err) console.error(err)
+            else if(pid) console.log(`PID: ${pid}`)
+        })
+    })
+
+runTest("Stopping NodeJS Process",
+    3*60*1000,
+    () => {
+        pm2.stop('nodejs-process', (err) => {
+            if(err) console.error(err)
+        })
+    })
