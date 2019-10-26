@@ -58,7 +58,6 @@ function start(pi, cb) {
             cb()
         } else {
             cb(`Don't know how to start ${script}`)
-            return
         }
     })
 
@@ -109,7 +108,24 @@ function onstopping(hook) {
     ONSTOPPING = hook
 }
 
+/*      outcome/
+ * Restart the requested process by stopping it and then getting the
+ * appropriate handler to restart it
+ */
 function restart(pi) {
+    stop(pi, (err) => {
+        if(err) {
+            pi.cb && pi.cb(err)
+        } else {
+            let handler = getScriptHandler(pi._script)
+            if(handler) {
+                handler(pi)
+                pi.cb && pi.cb()
+            } else {
+                pi.cb && pi.cb(`Don't know how to restart ${script}`)
+            }
+        }
+    })
 }
 
 /*      outcome/
@@ -117,7 +133,7 @@ function restart(pi) {
  * complies. If it does fine, otherwise try to kill it.
  */
 function stop(pi, cb) {
-    if(!pi.child) return
+    if(!pi.child) return cb(`No process to stop`)
     try {
         pi.child.send && pi.child.send({ stopping: true })
         setTimeout(() => {
@@ -140,6 +156,7 @@ function stop(pi, cb) {
  * a matching handler
  */
 function getScriptHandler(script) {
+    if(!script) return
     let handlers = {
         ".js" : launchJSProcess,
         ".py" : launchPythonProcess,

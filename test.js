@@ -25,4 +25,4 @@ pm2.start({
     log: 'process2.log',
 })
 setTimeout(() => pm2.stop('process2'), 1000)
-setTimeout(() => pm2.stop('process1'), 3000)
+setTimeout(() => pm2.restart('process1'), 3000)
