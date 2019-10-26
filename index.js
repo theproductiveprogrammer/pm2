@@ -133,14 +133,15 @@ function restart(pi) {
  * complies. If it does fine, otherwise try to kill it.
  */
 function stop(pi, cb) {
-    if(!pi.child) return cb(`No process to stop`)
+    if(!pi.child) {
+        cb && cb(`No process to stop`)
+        return
+    }
+
     try {
         pi.child.send && pi.child.send({ stopping: true })
         setTimeout(() => {
-            if(pi.child) {
-                pi.child.kill()
-                pi.child = null
-            }
+            if(pi.child) pi.child.kill()
             cb && cb()
         }, 200)
     } catch(e) {
@@ -286,18 +287,20 @@ function captureOutput(pi) {
  * child process.
  */
 function handleExit(pi) {
-    pi.child.on('error', (err) => {
-        pi.child = null
+    let child = pi.child
+
+    child.on('error', (err) => {
+        if(child == pi.child) pi.child = null
         pi.flush && pi.flush()
         pi.cb && pi.cb(err)
     })
-    pi.child.on('exit', on_done_1)
-    pi.child.on('close', on_done_1)
+    child.on('exit', on_done_1)
+    child.on('close', on_done_1)
 
     let prevcode, prevsignal
 
     function on_done_1(code, signal) {
-        pi.child = null
+        if(child == pi.child) pi.child = null
         pi.flush && pi.flush()
         if(code == prevcode && signal == prevsignal) return
         prevcode = code

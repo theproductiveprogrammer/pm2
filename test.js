@@ -26,3 +26,5 @@ pm2.start({
 })
 setTimeout(() => pm2.stop('process2'), 1000)
 setTimeout(() => pm2.restart('process1'), 3000)
+setTimeout(() => pm2.stop('process1'), 5000)
+setTimeout(() => pm2.stop('process2'), 5000)
