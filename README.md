@@ -150,4 +150,6 @@ For python programs that are embedded in the application we
 Hence we should use the [asarUnpack](https://www.electron.build/configuration/configuration#configuration-asarUnpack) option to extract the python files and then launch the extracted files using [`child_process.spawn('python',...)`](https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options)
 
 ## TODO
+[ ] Update README (split into Design vs Use)
+[ ] Add Restart-after-Crash Ability
 [ ] Add Support for more process types (besides just python and node)
