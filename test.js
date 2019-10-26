@@ -1,54 +1,72 @@
 'use strict'
 let pm2 = require('.')
 
-console.log(`***** These should fail for various reasons ****`)
-pm2.start()
-pm2.start({
-    name: 'fails',
-}, (err) => {
-    console.error('fails:',err)
-})
-pm2.start({
-    name: 'fail1',
-    cwd: './tester',
-})
-pm2.start({
-    name: 'fail2',
-    script: './tester',
-})
+let tm = 0
+function runTest(what, after, test) {
+    tm += after
+    setTimeout(() => {
+        console.log(`\n***** ${what} *****`)
+        test()
+    }, tm)
+}
 
-setTimeout(() => {
-    console.log(`\n***** Start a NodeJS process ****`)
-    pm2.start({
-        name: 'process1',
-        cwd: './tester/with-new/process1'
+runTest("These should fail for various reasons",
+    100,
+    () => {
+        pm2.start()
+        pm2.start({
+            name: 'fails',
+        }, (err) => {
+            console.error('fails:',err)
+        })
+        pm2.start({
+            name: 'fail1',
+            cwd: './tester',
+        })
+        pm2.start({
+            name: 'fail2',
+            script: './tester',
+        })
     })
-}, 1000)
 
-setTimeout(() => {
-    console.log(`\n***** Start a Python process (output in log file) ****`)
-    pm2.start({
-        name: 'process2',
-        script: './tester/with-new/process1/process2/serve.py',
-        log: 'process2.log',
+runTest("Start a NodeJS process",
+    1000,
+    () => {
+        pm2.start({
+            name: 'nodejs-process',
+            cwd: './tester/with-new/process1'
+        })
     })
-}, 2000)
 
-setTimeout(() => {
-    console.log(`\n***** Stopping python process ****`)
-    pm2.stop('process2')
-}, 3500)
-setTimeout(() => {
-    console.log(`\n***** Restarting NodeJS process ****`)
-    pm2.restart('process1')
-}, 4500)
-setTimeout(() => {
-    console.log(`\n***** Re-stopping Python process (will fail) ****`)
-    pm2.stop('process2', (err) => {
-        if(err) console.error(err)
+runTest("Start a Python process (output in log file)",
+    1000,
+    () => {
+        pm2.start({
+            name: 'python-process',
+            script: './tester/with-new/process1/process2/serve.py',
+            log: 'process2.log',
+        })
     })
-}, 6000)
-setTimeout(() => {
-    console.log(`\n***** Stopping NodeJS process ***`)
-    pm2.stop('process1')
-}, 7000)
+
+runTest("Stop the Python process",
+    2000,
+    () => pm2.stop('python-process'))
+
+runTest("Restart the NodeJS process",
+    1000, () => pm2.restart('nodejs-process'))
+
+runTest("Stop the Python process again (will fail)",
+    1000,
+    () => {
+        pm2.stop('python-process', (err) => {
+            if(err) console.error(err)
+        })
+    })
+
+runTest("Stop the NodeJS process completely",
+    1000,
+    () => {
+        pm2.stop('nodejs-process', (err) => {
+            if(err) console.error(err)
+        })
+    })
