@@ -45,6 +45,9 @@ runTest("Start a Python process (output in log file)",
             name: 'python-process',
             script: './tester/with-new/process1/process2/serve.py',
             log: 'process2.log',
+        }, (err, pid) => {
+            if(err) console.error(err)
+            if(pid) console.log(`PID: ${pid}`)
         })
     })
 

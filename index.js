@@ -57,7 +57,7 @@ function start(pi, cb) {
         if(handler) {
             REG.push(pi)
             handler(pi)
-            cb()
+            cb(null, pi.child.pid)
         } else {
             cb(`Don't know how to start ${script}`)
         }
