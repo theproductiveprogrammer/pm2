@@ -26,7 +26,12 @@ let ONSTOPPING
  * start the given process depending on what type it is
  */
 function start(pi, cb) {
-    if(!cb) cb = (err) => { if(err) console.error(err) }
+    if(!cb) cb = (err) => {
+        if(err) {
+            if(pi && pi.name) console.error(pi.name, err)
+            else console.error(err)
+        }
+    }
 
     if(!pi) return cb(`Cannot start process without any information`)
     if(!pi.script && !pi.cwd) return cb(`Cannot start process without 'script' or 'cwd'`)
@@ -218,13 +223,16 @@ function captureOutput(pi) {
      */
     function out(pi, line, iserr) {
         if(pi.log) {
-            fs.appendFile(pi.log, line + '\n', (err) => {
+            if(pi.name) line = `${pi.name}: ${line}\n`
+            else line = line + '\n'
+            fs.appendFile(pi.log, line, (err) => {
                 if(err) {
                     console.error(m)
                     console.error(err)
                 }
             })
         } else {
+            if(pi.name) line = `${pi.name}: ${line}`
             if(iserr) console.error(line)
             else console.log(line)
         }

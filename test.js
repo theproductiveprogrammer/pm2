@@ -5,7 +5,7 @@ pm2.start()
 pm2.start({
     name: 'fails',
 }, (err) => {
-    console.error('process1:',err)
+    console.error('fails:',err)
 })
 pm2.start({
     name: 'fail1',
