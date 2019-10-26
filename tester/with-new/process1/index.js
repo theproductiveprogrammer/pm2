@@ -1,5 +1,6 @@
 'use strict'
 const http = require('http')
+const pm2 = require('../../../')
 
 const hostname = '127.0.0.1'
 const port = 3000
@@ -14,9 +15,7 @@ server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`)
 })
 
-process.on('message', (m) => {
-    if(m.stopping) {
-        console.log('Shutting down')
-        server.close()
-    }
+pm2.onstopping(() => {
+    console.log('Shutting down')
+    server.close()
 })

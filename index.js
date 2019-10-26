@@ -17,9 +17,11 @@ module.exports = {
 let REG = []
 
 /*      understand/
- * Shutdown hook
+ * Shutdown hook to be called before shutdown (should be called only
+ * once)
  */
 let ONSTOPPING
+let ONSTOPPING_CALLED
 
 /*      outcome/
  * We get the values we require from the user, set up some defaults, and
@@ -104,9 +106,28 @@ function stopall() {
     REG.forEach(stop)
 }
 
+/*      outcome/
+ * Set the 'onstopping' hook which is called before the process shuts
+ * down.
+ */
 function onstopping(hook) {
     ONSTOPPING = hook
+    ONSTOPPING_CALLED = false
+
+    process.on('message', (m) => {
+        if(m.stopping) callOnStoppingHook_1()
+    })
+    process.on('beforeExit', (code) => callOnStoppingHook_1())
+    process.on('exit', (code) => callOnStoppingHook_1())
+
+    function callOnStoppingHook_1() {
+        if(ONSTOPPING_CALLED) return
+        ONSTOPPING_CALLED = true
+        ONSTOPPING()
+    }
 }
+
+
 
 /*      outcome/
  * Restart the requested process by stopping it and then getting the
