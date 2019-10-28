@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/theproductiveprogrammer/pm2/issues"
   },
-  "homepage": "https://github.com/theproductiveprogrammer/pm2#readme"
+  "homepage": "https://github.com/theproductiveprogrammer/pm2#readme",
+  "dependencies": {
+    "strip-ansi": "^5.2.0"
+  }
 }

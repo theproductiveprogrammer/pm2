@@ -2,6 +2,7 @@
 const fs = require('fs')
 const path = require('path')
 const proc = require('child_process')
+const stripAnsi = require('strip-ansi')
 
 module.exports = {
     start : start,
@@ -46,6 +47,7 @@ function start(pi, cb) {
         script: pi.script,
         cwd: pi.cwd,
         log: pi.log,
+        stripANSI: pi.stripANSI,
         restartAt: pi.restartAt,
         restartOk: pi.restartOk,
         cb: cb,
@@ -305,6 +307,7 @@ function captureOutput(pi) {
      * given we output to stdout/stderr.
      */
     function out(pi, line, iserr) {
+        if(pi.stripANSI) line = stripAnsi(line)
         if(pi.log) {
             if(pi.name) line = `${pi.name}: ${line}\n`
             else line = line + '\n'

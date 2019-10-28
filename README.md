@@ -197,5 +197,23 @@ You can turn the restarting behaviour off completely by setting
 `restartAt` to `[]` or `[0]`.
 
 
+## Terminal Output coloring
+
+In some cases the output of programs designed for the terminal can
+contain [ANSI Escape Codes](https://en.wikipedia.org/wiki/ANSI_escape_code).
+To remove them specify `stripANSI:true` as an option.
+
+```javascript
+pm2.start({
+    cwd: '/path/to/npm/module/',
+    log: 'mylog.log',
+    stripANSI: true,
+})
+```
+
+This is usually because you want a clean log file.
+
+
+
 ## TODO
 [ ] Add Support for more process types (besides just python and node)
