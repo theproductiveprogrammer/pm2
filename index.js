@@ -172,7 +172,7 @@ function startAgain(pi) {
         pi.lastStart = Date.now()
         pi.cb && pi.cb(null, pi.child.pid)
     } else {
-        pi.cb && pi.cb(`Don't know how to restart ${script}`)
+        pi.cb && pi.cb(`Don't know how to restart ${pi._script}`)
     }
 }
 
@@ -313,7 +313,6 @@ function captureOutput(pi) {
             else line = line + '\n'
             fs.appendFile(pi.log, line, (err) => {
                 if(err) {
-                    console.error(m)
                     console.error(err)
                 }
             })
