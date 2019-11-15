@@ -52,12 +52,13 @@ function start(pi, cb) {
         restartOk: pi.restartOk,
         cb: cb,
     }
-
+    
     if(!pi.restartAt) pi.restartAt = [100,500,1000,30*1000,60*1000,5*60*1000,15*60*1000]
     if(!pi.restartOk) pi.restartOk = 30 * 60 * 1000
 
     get_script_1(pi, (script) => {
         pi._script = script
+        fixAsarIssue(pi)
         if(!pi._script) {
             cb(`No script given to run`)
             return
@@ -71,6 +72,30 @@ function start(pi, cb) {
             cb(`Don't know how to start ${script}`)
         }
     })
+
+    /**
+     *      outcome/
+     *  This will check the given script or CWD is inside asar file or not.
+     * If given script or CWD is inside, it will change the script and CWD
+     * to as per asar child process support.
+     * else this will keep same
+     * @param {*} pi 
+     */
+    function fixAsarIssue(pi){
+        if(pi.cwd.includes('/app.asar/')){
+            let p = pi.cwd.split('app.asar')
+            if(p.length == 2){
+                pi._script = path.join('app.asar', p[1], pi._script)
+                pi.cwd = p[0]                   
+            }
+        } else if(pi._script.includes('/app.asar/')){
+            let p = pi._script.split('app.asar')
+            if(p.length == 2){
+                pi._script = path.join('app.asar', p[1])
+                pi.cwd = p[0]                   
+            }
+        }
+    }
 
     /*      understand/
      * A nodejs module contains a 'package.json' file which generally
@@ -106,9 +131,14 @@ function restartByName(name) {
 }
 
 function stopByName(name, cb) {
+    let piAvailable = false
     REG.forEach((pi) => {
-        if(pi.child && pi.name === name) stop(pi, cb)
+        if(pi.child && pi.name === name){
+            piAvailable = true
+            stop(pi, cb)
+        } 
     })
+    if(!piAvailable) cb()
 }
 
 function stopAll(cb) {
