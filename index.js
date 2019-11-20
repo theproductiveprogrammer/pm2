@@ -81,16 +81,18 @@ function start(pi, cb) {
      * else this will keep same
      * @param {*} pi 
      */
-    function fixAsarIssue(pi){
-        if(pi.cwd.includes('/app.asar/')){
+    function fixAsarIssue(pi) {
+        if (pi.cwd.includes('/app.asar/') ||
+                pi.cwd.includes('\\app.asar\\')) {
             let p = pi.cwd.split('app.asar')
-            if(p.length == 2){
+            if (p.length == 2){
                 pi._script = path.join('app.asar', p[1], pi._script)
                 pi.cwd = p[0]                   
             }
-        } else if(pi._script.includes('/app.asar/')){
+        } else if (pi._script.includes('/app.asar/') ||
+                pi._script.includes('\\app.asar\\')) {
             let p = pi._script.split('app.asar')
-            if(p.length == 2){
+            if (p.length == 2){
                 pi._script = path.join('app.asar', p[1])
                 pi.cwd = p[0]                   
             }
