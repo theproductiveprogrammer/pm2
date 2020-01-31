@@ -52,7 +52,7 @@ function start(pi, cb) {
         restartOk: pi.restartOk,
         cb: cb,
     }
-    
+
     if(!pi.restartAt) pi.restartAt = [100,500,1000,30*1000,60*1000,5*60*1000,15*60*1000]
     if(!pi.restartOk) pi.restartOk = 30 * 60 * 1000
 
@@ -79,7 +79,7 @@ function start(pi, cb) {
      * If given script or CWD is inside, it will change the script and CWD
      * to as per asar child process support.
      * else this will keep same
-     * @param {*} pi 
+     * @param {*} pi
      */
     function fixAsarIssue(pi) {
         if (pi.cwd.includes('/app.asar/') ||
@@ -87,14 +87,14 @@ function start(pi, cb) {
             let p = pi.cwd.split('app.asar')
             if (p.length == 2){
                 pi._script = path.join('app.asar', p[1], pi._script)
-                pi.cwd = p[0]                   
+                pi.cwd = p[0]
             }
         } else if (pi._script.includes('/app.asar/') ||
                 pi._script.includes('\\app.asar\\')) {
             let p = pi._script.split('app.asar')
             if (p.length == 2){
                 pi._script = path.join('app.asar', p[1])
-                pi.cwd = p[0]                   
+                pi.cwd = p[0]
             }
         }
     }
@@ -138,7 +138,7 @@ function stopByName(name, cb) {
         if(pi.child && pi.name === name){
             piAvailable = true
             stop(pi, cb)
-        } 
+        }
     })
     if(!piAvailable) cb()
 }
@@ -202,7 +202,7 @@ function startAgain(pi) {
         handler(pi)
         pi.stopRequested = false
         pi.lastStart = Date.now()
-        pi.cb && pi.cb(null, pi.child.pid)
+        pi.cb && pi.cb(null, pi.child ? pi.child.pid : undefined)
     } else {
         pi.cb && pi.cb(`Don't know how to restart ${pi._script}`)
     }
@@ -303,6 +303,8 @@ function launchJSProcess(pi) {
  * show individual lines.
  */
 function captureOutput(pi) {
+    if(!pi.child) return () => "Doing Nothing"
+
     let op = ""
     let er = ""
 
@@ -369,6 +371,8 @@ function captureOutput(pi) {
  * child process. Allow the process to restart if needed.
  */
 function handleExit(pi) {
+    if(!pi.child) return
+
     let child = pi.child
 
     child.on('error', (err) => {
