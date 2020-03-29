@@ -3,6 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const proc = require('child_process')
 const stripAnsi = require('strip-ansi')
+const ProcessInfo = require('./process-info')
 
 module.exports = {
     start : start,
@@ -52,6 +53,7 @@ function start(pi, cb) {
         restartOk: pi.restartOk,
         cb: cb,
     }
+    pi = Object.assign(new ProcessInfo(), pi);
 
     if(!pi.restartAt) pi.restartAt = [100,500,1000,30*1000,60*1000,5*60*1000,15*60*1000]
     if(!pi.restartOk) pi.restartOk = 30 * 60 * 1000
@@ -67,7 +69,7 @@ function start(pi, cb) {
         if(handler) {
             REG.push(pi)
             handler(pi)
-            cb(null, pi.child.pid)
+            cb(null, pi)
         } else {
             cb(`Don't know how to start ${script}`)
         }
@@ -202,9 +204,9 @@ function startAgain(pi) {
         handler(pi)
         pi.stopRequested = false
         pi.lastStart = Date.now()
-        pi.cb && pi.cb(null, pi.child ? pi.child.pid : undefined)
+        pi.emit('restart')
     } else {
-        pi.cb && pi.cb(`Don't know how to restart ${pi._script}`)
+        pi.emit('error', `Don't know how to restart ${pi._script}`)
     }
 }
 
@@ -373,12 +375,12 @@ function captureOutput(pi) {
 function handleExit(pi) {
     if(!pi.child) return
 
-    let child = pi.child
+    const child = pi.child
 
     child.on('error', (err) => {
         if(child == pi.child) pi.child = null
         pi.flush && pi.flush()
-        pi.cb && pi.cb(err)
+        pi.emit('error', err)
         restartIfNeeded(pi)
     })
     child.on('exit', on_done_1)
@@ -393,11 +395,11 @@ function handleExit(pi) {
         prevcode = code
         prevsignal = signal
         if(code && code) {
-            pi.cb && pi.cb(`Exited with error`, child.pid)
+            pi.emit('exit',`Exited with error`, child.pid)
         } else if(signal) {
-            pi.cb && pi.cb(`Killed`, child.pid)
+            pi.emit('exit',`Killed`, child.pid)
         } else {
-            pi.cb && pi.cb()
+            pi.emit('exit','Process exit')
         }
         restartIfNeeded(pi)
     }
