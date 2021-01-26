@@ -47,6 +47,7 @@ function start(pi, cb) {
         name: pi.name,
         script: pi.script,
         cwd: pi.cwd,
+        args: pi.args,
         log: pi.log,
         stripANSI: pi.stripANSI,
         restartAt: pi.restartAt,
