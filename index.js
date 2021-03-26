@@ -113,18 +113,18 @@ function start(pi, cb) {
      */
     function get_script_1(pi, cb) {
         if(pi.script) return cb(pi.script)
-        try {
-            let pkg = path.join(pi.cwd, 'package.json')
-            fs.readFile(pkg, (err, data) => {
-                if(err) cb()
-                else {
+        let pkg = path.join(pi.cwd, 'package.json')
+        fs.readFile(pkg, (err, data) => {
+            if(err) cb()
+            else {
+                try {
                     let obj = JSON.parse(data)
                     cb(obj.main)
+                } catch(e) {
+                    cb()
                 }
-            })
-        } catch(e) {
-            cb()
-        }
+            }
+        })
     }
 }
 
