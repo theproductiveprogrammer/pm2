@@ -27,6 +27,8 @@ pm.start({
 
 	restartOk: 30*60*1000,
 
+  stripANSI: true,
+
 })
 
 ...
