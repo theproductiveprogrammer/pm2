@@ -226,7 +226,6 @@ function stop(pi, cb, ignoreStopped) {
         pi.child.send && pi.child.send({ stopping: true })
         setTimeout(() => {
             if(pi.child) pi.child.kill()
-            pi.child = null
             cb && cb()
         }, 200)
     } catch(e) {
