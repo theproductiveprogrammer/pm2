@@ -1,6 +1,6 @@
 {
   "name": "@elife/pm2",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "A PM2 Replacement that works with Electron",
   "main": "index.js",
   "scripts": {
