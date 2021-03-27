@@ -110,6 +110,16 @@ Logging suffers from two problems:
 
 We will solve _both_ the above problems by batching the output and error data into _lines_ and output-ting each _line_ to the log file.
 
+## Strip ANSI
+
+### The Problem
+
+Some loggers expect to output to the terminal and fill their logs with ANSI escape codes that show the logs filled with color and style. Unfortunately, if we save these logs into text files, the escape codes make them very hard to read and understand.
+
+### The Solution
+
+The user can tell us to strip the ANSI codes by passing in a `stripANSI` parameter. Then the saved log file will be nice and clean.
+
 ## Identity
 
 ### Named Processes
