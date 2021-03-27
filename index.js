@@ -60,7 +60,7 @@ function start(pi, cb) {
 
     get_script_1(pi, (script) => {
         pi._script = script
-        if(!pi._script) return cb(`No script given to run`)
+        if(!pi._script) return cb(`Failed getting program to run`)
 
         fixAsarIssue(pi)
 
@@ -112,12 +112,15 @@ function start(pi, cb) {
         if(pi.script) return cb(pi.script)
         let pkg = path.join(pi.cwd, 'package.json')
         fs.readFile(pkg, (err, data) => {
-            if(err) cb()
-            else {
+            if(err) {
+                pi.emit('error', err)
+                cb()
+            } else {
                 try {
                     let obj = JSON.parse(data)
                     cb(obj.main)
                 } catch(e) {
+                    pi.emit('error', err)
                     cb()
                 }
             }
@@ -131,22 +134,13 @@ function restartByName(name) {
     })
 }
 
-function stopByName(name, cb) {
-    let piAvailable = false
+function stopByName(name) {
     REG.forEach((pi) => {
-        if(pi.name === name){
-            piAvailable = true
-            stop(pi, cb)
-        }
+        if(pi.name === name) stop(pi)
     })
-    if(!piAvailable) cb()
 }
 
-function stopAll(cb) {
-    REG.forEach((pi) => {
-        if(pi.child) stop(pi, cb)
-    })
-}
+function stopAll() { REG.forEach(stop) }
 
 /*      outcome/
  * Set the 'onstopping' hook which is called before the process shuts
@@ -176,13 +170,7 @@ function onstopping(hook) {
  * again.
  */
 function restart(pi) {
-    stop(pi, (err) => {
-        if(err) {
-            pi.cb && pi.cb(err)
-        } else {
-            startAgain(pi)
-        }
-    }, true)
+    stop(pi, () =>  startAgain(pi))
 }
 
 /*      outcome/
@@ -206,13 +194,11 @@ function startAgain(pi) {
  * Send a message to the child to stop and wait a bit to see if it
  * complies. If it does fine, otherwise try to kill it.
  */
-function stop(pi, cb, ignoreStopped) {
+function stop(pi, cb) {
     pi.stopRequested = true
     if(pi.restartInProgress) clearTimeout(pi.restartInProgress)
     if(!pi.child || pi.child.exitCode !== null) {
-        if(!ignoreStopped) {
-            cb && cb(`No process to stop`)
-        }
+        cb && cb()
         return
     }
 
@@ -220,15 +206,19 @@ function stop(pi, cb, ignoreStopped) {
         if(pi.child && pi.child.send) {
             pi.child.send && pi.child.send({ stopping: true })
             setTimeout(() => {
-                if(pi.child) pi.child.kill()
-                cb && cb()
+                try {
+                    if(pi.child) pi.child.kill()
+                    cb && cb()
+                } catch(err) {
+                    pi.emit('error', err)
+                }
             }, 200)
         } else {
             if(pi.child) pi.child.kill()
             cb && cb()
         }
-    } catch(e) {
-        cb && cb(e)
+    } catch(err) {
+        pi.emit('error', err)
     }
 }
 
