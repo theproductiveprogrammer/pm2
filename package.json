@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/theproductiveprogrammer/pm2#readme",
   "dependencies": {
-    "strip-ansi": "^5.2.0"
+    "strip-ansi": "^6.0.0"
   }
 }
