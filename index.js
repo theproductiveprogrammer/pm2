@@ -134,7 +134,7 @@ function restartByName(name) {
 function stopByName(name, cb) {
     let piAvailable = false
     REG.forEach((pi) => {
-        if(pi.child && pi.name === name){
+        if(pi.name === name){
             piAvailable = true
             stop(pi, cb)
         }
@@ -176,17 +176,13 @@ function onstopping(hook) {
  * again.
  */
 function restart(pi) {
-    if(pi.child) {
-        stop(pi, (err) => {
-            if(err) {
-                pi.cb && pi.cb(err)
-            } else {
-                startAgain(pi)
-            }
-        }, true)
-    } else {
-        startAgain(pi)
-    }
+    stop(pi, (err) => {
+        if(err) {
+            pi.cb && pi.cb(err)
+        } else {
+            startAgain(pi)
+        }
+    }, true)
 }
 
 /*      outcome/
@@ -197,14 +193,13 @@ function restart(pi) {
  */
 function startAgain(pi) {
     let handler = getScriptHandler(pi._script)
-    if(handler) {
-        handler(pi)
-        pi.stopRequested = false
-        pi.lastStart = Date.now()
-        pi.emit('restart')
-    } else {
-        pi.emit('error', `Don't know how to restart ${pi._script}`)
-    }
+    if(!handler) pi.emit('error', `Don't know how to restart ${pi._script}`)
+
+    handler(pi)
+
+    pi.stopRequested = false
+    pi.lastStart = Date.now()
+    pi.emit('restart')
 }
 
 /*      outcome/
@@ -214,17 +209,24 @@ function startAgain(pi) {
 function stop(pi, cb, ignoreStopped) {
     pi.stopRequested = true
     if(pi.restartInProgress) clearTimeout(pi.restartInProgress)
-    if(!pi.child) {
-        if(!ignoreStopped) cb && cb(`No process to stop`)
+    if(!pi.child || pi.child.exitCode !== null) {
+        if(!ignoreStopped) {
+            cb && cb(`No process to stop`)
+        }
         return
     }
 
     try {
-        pi.child.send && pi.child.send({ stopping: true })
-        setTimeout(() => {
+        if(pi.child && pi.child.send) {
+            pi.child.send && pi.child.send({ stopping: true })
+            setTimeout(() => {
+                if(pi.child) pi.child.kill()
+                cb && cb()
+            }, 200)
+        } else {
             if(pi.child) pi.child.kill()
             cb && cb()
-        }, 200)
+        }
     } catch(e) {
         cb && cb(e)
     }
@@ -411,7 +413,7 @@ function handleExit(pi) {
 function restartIfNeeded(pi) {
     if(!pi.restartAt || pi.restartAt.length == 0) return
     if(pi.restartAt.length == 1 && pi.restartAt[0] == 0) return
-    if(pi.child) return
+    if(pi.child && pi.child.exitCode === null) return
     if(pi.stopRequested) return
 
     if(pi.restartInProgress) return
@@ -420,7 +422,8 @@ function restartIfNeeded(pi) {
 
     pi.restartInProgress = setTimeout(() => {
         pi.restartInProgress = false
-        if(!pi.child && !pi.stopRequested) startAgain(pi)
+        if(pi.stopRequested) return
+        if(!pi.child || pi.child.exitCode !== null) startAgain(pi)
     }, intv)
 
 
