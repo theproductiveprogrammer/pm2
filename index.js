@@ -60,19 +60,16 @@ function start(pi, cb) {
 
     get_script_1(pi, (script) => {
         pi._script = script
-        if(!pi._script) {
-            cb(`No script given to run`)
-            return
-        }
+        if(!pi._script) return cb(`No script given to run`)
+
         fixAsarIssue(pi)
+
         let handler = getScriptHandler(script)
-        if(handler) {
-            REG.push(pi)
-            handler(pi)
-            cb(null, pi)
-        } else {
-            cb(`Don't know how to start ${script}`)
-        }
+        if(!handler) return cb(`Don't know how to start ${script}`)
+
+        REG.push(pi)
+        handler(pi)
+        cb(null, pi)
     })
 
     /**
