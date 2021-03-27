@@ -8,14 +8,14 @@
     "build": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {
-    "electron": "^4.2.9",
-    "electron-builder": "^21.2.0"
-  },
   "author": "charles.lobo@gmail.com",
   "license": "ISC",
   "build": {
     "asar": true,
     "asarUnpack": "process1/process2/"
+  },
+  "devDependencies": {
+    "electron": "^12.0.2",
+    "electron-builder": "^22.10.5"
   }
 }
