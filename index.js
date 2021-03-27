@@ -186,7 +186,7 @@ function restart(pi) {
             } else {
                 startAgain(pi)
             }
-        })
+        }, true)
     } else {
         startAgain(pi)
     }
@@ -214,11 +214,11 @@ function startAgain(pi) {
  * Send a message to the child to stop and wait a bit to see if it
  * complies. If it does fine, otherwise try to kill it.
  */
-function stop(pi, cb) {
+function stop(pi, cb, ignoreStopped) {
     pi.stopRequested = true
     if(pi.restartInProgress) clearTimeout(pi.restartInProgress)
     if(!pi.child) {
-        cb && cb(`No process to stop`)
+        if(!ignoreStopped) cb && cb(`No process to stop`)
         return
     }
 
