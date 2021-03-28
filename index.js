@@ -6,9 +6,10 @@ const stripAnsi = require('strip-ansi')
 const ProcessInfo = require('./process-info')
 
 module.exports = {
-    start : start,
-    restart: restartByName,
-    stop: stopByName,
+    start,
+    restartByName,
+    stopByName,
+    stop,
     stopAll,
     onstopping,
     forEach,
