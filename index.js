@@ -37,6 +37,8 @@ function start(pi, cb) {
         } else if(err) {
             if(pi && pi.name) console.error(pi.name, err)
             else console.error(err)
+        } else {
+          console.log(`Starting ${pi.name} on ${pi.cwd} - pid (${pid})`)
         }
     }
 
