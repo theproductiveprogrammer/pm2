@@ -205,21 +205,13 @@ function stop(pi, cb) {
     }
 
     try {
-        if(pi.child && pi.child.send) {
-            pi.child.send && pi.child.send({ stopping: true })
-            setTimeout(() => {
-                try {
-                    if(pi.child) pi.child.kill()
-                    cb && cb()
-                } catch(err) {
-                    pi.emit('error', err)
-                }
-            }, 200)
-        } else {
-            if(pi.child) pi.child.kill()
-            cb && cb()
+        if(pi.child) {
+            if(pi.child.send) pi.child.send({ stopping: true })
+            pi.child.kill()
         }
+        cb && cb()
     } catch(err) {
+        console.error(err)
         pi.emit('error', err)
     }
 }
