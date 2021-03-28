@@ -11,12 +11,15 @@ module.exports = {
     stop: stopByName,
     stopAll,
     onstopping,
+    forEach,
 }
 
 /*      understand/
  * PROCESS REGISTRY
  */
 let REG = []
+
+function forEach(cb) { REG.forEach(cb) }
 
 /*      understand/
  * Shutdown hook to be called before shutdown (should be called only
