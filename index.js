@@ -42,7 +42,7 @@ function start(pi, cb) {
             if(pi && pi.name) console.error(pi.name, err)
             else console.error(err)
         } else {
-          console.log(`Starting ${pi.name} on ${pi.cwd} - pid (${pid})`)
+          console.log(`Starting ${pi.name} on ${pi.cwd} - pid (${pi.child.pid})`)
         }
     }
 
