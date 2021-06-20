@@ -58,6 +58,7 @@ function start(pi, cb) {
         stripANSI: pi.stripANSI,
         restartAt: pi.restartAt,
         restartOk: pi.restartOk,
+        env: pi.env,
         cb: cb,
     }
     pi = Object.assign(new ProcessInfo(), pi);
