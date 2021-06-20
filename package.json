@@ -1,6 +1,6 @@
 {
   "name": "@elife/pm2",
-  "version": "3.5.1",
+  "version": "3.6.0",
   "description": "A PM2 Replacement that works with Electron",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "url": "https://github.com/theproductiveprogrammer/pm2/issues"
   },
   "homepage": "https://github.com/theproductiveprogrammer/pm2#readme",
+  "keywords": ["pm2","process management","child_process","electron"],
   "dependencies": {
     "strip-ansi": "^6.0.0"
   }
