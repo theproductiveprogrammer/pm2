@@ -103,6 +103,28 @@ runTest("Try killing this [100,1000,30000]/1min nodeJS process",
         })
     })
 
+runTest("Access the environment in nodejs",
+    1000,
+    () => {
+        pm2.start({
+            name: 'nodejs-with-env',
+            script: 'env.js',
+            cwd: './tester/with-new/process2',
+            env: { ENV_VAL: "Ok" },
+        })
+    })
+
+runTest("Access the environment in python",
+    1000,
+    () => {
+        pm2.start({
+            name: 'python-with-env',
+            script: './tester/with-new/process2/env.py',
+            env: { ENV_VAL: "Ok" },
+        })
+    })
+
+
 runTest("Stop all processes",
     3 * 60 * 1000,
     () => {
