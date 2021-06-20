@@ -147,7 +147,7 @@ function stopByName(name) {
     })
 }
 
-function stopAll() { REG.forEach(stop) }
+function stopAll() { REG.forEach(pi => stop(pi)) }
 
 /*      outcome/
  * Set the 'onstopping' hook which is called before the process shuts
