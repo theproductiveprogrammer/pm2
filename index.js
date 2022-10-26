@@ -281,6 +281,7 @@ function launchJSProcess(pi) {
 
     if(pi.cwd) opts.cwd = pi.cwd
     if(pi.env) opts.env = pi.env
+    if(pi.stdio) opts.stdio = pi.stdio
     if(!pi.args) pi.args = []
 
     pi.child = proc.fork(pi._script, pi.args, opts)
