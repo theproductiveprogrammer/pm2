@@ -14,7 +14,7 @@
     "asar": false
   },
   "devDependencies": {
-    "electron": "^15.5.5",
+    "electron": "^18.3.7",
     "electron-builder": "^22.10.5"
   },
   "dependencies": {
