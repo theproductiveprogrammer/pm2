@@ -15,7 +15,7 @@
     "asarUnpack": "process1/process2/"
   },
   "devDependencies": {
-    "electron": "^18.3.7",
+    "electron": "^22.3.21",
     "electron-builder": "^22.10.5"
   }
 }
